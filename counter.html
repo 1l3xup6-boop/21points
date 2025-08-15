@@ -8,22 +8,59 @@
 body {
   font-family: Arial, sans-serif;
   text-align: center;
-  padding: 50px;
+  padding: 20px;
   background-color: #1a1a1a;
   color: #f0f0f0;
+  margin: 0;
 }
 h1 {
-  font-size: 36px;
-  margin-bottom: 30px;
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+
+/* 總和容器 */
+#total-container {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 20px;
 }
 #total {
-  font-size: 72px;
-  margin: 20px 0;
+  font-size: 120px;
+  line-height: 1;
+  color: #ffffff;
 }
-button {
-  font-size: 28px;
+
+/* 重設按鈕放右上方，不遮總和 */
+#reset {
+  position: absolute;
+  top: -10px;
+  right: -60px; /* 偏右，避免遮擋總和 */
+  font-size: 16px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #ef4444;
+  color: #ffffff;
+  transition: 0.1s;
+}
+#reset:active {
+  background-color: #b91c1c;
+}
+
+/* 主按鈕組 */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* 主按鈕 */
+button.main-btn {
+  font-size: 32px;
   padding: 16px 32px;
-  margin: 10px;
+  margin-bottom: 6px;
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -31,56 +68,107 @@ button {
   color: #052e12;
   transition: 0.1s;
 }
-button:active {
+button.main-btn:active {
   background-color: #16a34a;
   transform: translateY(1px);
 }
-#reset {
-  background-color: #ef4444;
-  color: #ffffff;
-}
-#reset:active {
-  background-color: #b91c1c;
-}
+
+/* 備註牌 */
 .note {
-  font-size: 18px;
-  margin-top: -8px;
-  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  margin-bottom: 12px;
+}
+.card {
+  display: inline-block;
+  width: 26px;
+  height: 34px;
+  line-height: 34px;
+  border: 2px solid #f0f0f0;
+  border-radius: 6px;
+  background-color: #ffffff10;
   color: #f0f0f0;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
 }
 </style>
 </head>
 <body>
 
 <h1>21點牌值</h1>
-<div id="total">0</div>
 
-<div>
-  <button onclick="updateTotal(1)">+1</button><br>
-  <div class="note">2 3 4 5 6</div>
-  
-  <button onclick="updateTotal(-1)">-1</button><br>
-  <div class="note">10 J Q K A</div>
-  
-  <button onclick="updateTotal(0)">+0</button><br>
-  <div class="note">7 8 9</div>
+<!-- 總和 + 重設按鈕 -->
+<div id="total-container">
+  <div id="total">0</div>
+  <button id="reset" onclick="resetTotal()">重設</button>
 </div>
 
-<br>
-<button id="reset" onclick="resetTotal()">重設</button>
+<!-- 三個垂直按鈕組 -->
+<div id="buttons-container">
+  <div class="button-group">
+    <button class="main-btn" onclick="updateTotal(1)">+1</button>
+    <div class="note">
+      <div class="card">2</div>
+      <div class="card">3</div>
+      <div class="card">4</div>
+      <div class="card">5</div>
+      <div class="card">6</div>
+    </div>
+  </div>
+
+  <div class="button-group">
+    <button class="main-btn" onclick="updateTotal(-1)">-1</button>
+    <div class="note">
+      <div class="card">10</div>
+      <div class="card">J</div>
+      <div class="card">Q</div>
+      <div class="card">K</div>
+      <div class="card">A</div>
+    </div>
+  </div>
+
+  <div class="button-group">
+    <button class="main-btn" onclick="updateTotal(0)">+0</button>
+    <div class="note">
+      <div class="card">7</div>
+      <div class="card">8</div>
+      <div class="card">9</div>
+    </div>
+  </div>
+</div>
 
 <script>
-let total = 0;
+// 自動儲存總和
+let total = parseInt(localStorage.getItem('totalValue')) || 0;
+const totalDiv = document.getElementById('total');
 
 function updateTotal(n) {
   total += n;
-  document.getElementById('total').textContent = total;
+  updateDisplay();
+  saveTotal();
 }
 
 function resetTotal() {
   total = 0;
-  document.getElementById('total').textContent = total;
+  updateDisplay();
+  saveTotal();
 }
+
+function updateDisplay() {
+  totalDiv.textContent = total;
+  if (total > 0) totalDiv.style.color = '#22c55e';
+  else if (total < 0) totalDiv.style.color = '#ef4444';
+  else totalDiv.style.color = '#ffffff';
+}
+
+function saveTotal() {
+  localStorage.setItem('totalValue', total);
+}
+
+// 初始化顯示
+updateDisplay();
 </script>
 
 </body>
