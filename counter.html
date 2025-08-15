@@ -18,23 +18,50 @@ h1 {
   margin-bottom: 20px;
 }
 
-/* 總和容器 */
-#total-container {
-  position: relative;
-  display: inline-block;
+/* 三欄水平置中 */
+#center-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 20px;
+  gap: 20px;
 }
+
+/* 左右欄寬度一致 */
+#stats-wrapper, #reset-wrapper {
+  min-width: 160px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 統計欄 */
+#stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: right;
+}
+#stats span {
+  font-weight: bold;
+  color: #ffd700;
+}
+
+/* 總和 */
 #total {
   font-size: 120px;
   line-height: 1;
   color: #ffffff;
+  min-width: 160px;
+  text-align: center;
 }
 
-/* 重設按鈕放右上方，不遮總和 */
+/* 重設按鈕 */
 #reset {
-  position: absolute;
-  top: -10px;
-  right: -60px; /* 偏右，避免遮擋總和 */
   font-size: 16px;
   padding: 6px 12px;
   border: none;
@@ -99,10 +126,21 @@ button.main-btn:active {
 
 <h1>21點牌值</h1>
 
-<!-- 總和 + 重設按鈕 -->
-<div id="total-container">
+<!-- 中間置中區 -->
+<div id="center-wrapper">
+  <div id="stats-wrapper">
+    <div id="stats">
+      <div>剩餘總牌數：<span id="remaining-cards">416</span></div>
+      <div>剩餘幾副牌：<span id="remaining-decks">8.0</span></div>
+      <div>真數：<span id="true-count">0.0</span></div>
+    </div>
+  </div>
+
   <div id="total">0</div>
-  <button id="reset" onclick="resetTotal()">重設</button>
+
+  <div id="reset-wrapper">
+    <button id="reset" onclick="resetTotal()">重設</button>
+  </div>
 </div>
 
 <!-- 三個垂直按鈕組 -->
@@ -140,20 +178,26 @@ button.main-btn:active {
 </div>
 
 <script>
-// 自動儲存總和
 let total = parseInt(localStorage.getItem('totalValue')) || 0;
+let remainingCards = parseInt(localStorage.getItem('remainingCards')) || 416;
+
 const totalDiv = document.getElementById('total');
+const remainingCardsSpan = document.getElementById('remaining-cards');
+const remainingDecksSpan = document.getElementById('remaining-decks');
+const trueCountSpan = document.getElementById('true-count');
 
 function updateTotal(n) {
   total += n;
+  remainingCards = Math.max(0, remainingCards - 1);
   updateDisplay();
-  saveTotal();
+  saveData();
 }
 
 function resetTotal() {
   total = 0;
+  remainingCards = 416;
   updateDisplay();
-  saveTotal();
+  saveData();
 }
 
 function updateDisplay() {
@@ -161,13 +205,20 @@ function updateDisplay() {
   if (total > 0) totalDiv.style.color = '#22c55e';
   else if (total < 0) totalDiv.style.color = '#ef4444';
   else totalDiv.style.color = '#ffffff';
+
+  remainingCardsSpan.textContent = remainingCards;
+  let remainingDecks = remainingCards / 52;
+  remainingDecksSpan.textContent = remainingDecks.toFixed(1);
+
+  let trueCount = remainingDecks > 0 ? total / remainingDecks : 0;
+  trueCountSpan.textContent = trueCount.toFixed(1);
 }
 
-function saveTotal() {
+function saveData() {
   localStorage.setItem('totalValue', total);
+  localStorage.setItem('remainingCards', remainingCards);
 }
 
-// 初始化顯示
 updateDisplay();
 </script>
 
